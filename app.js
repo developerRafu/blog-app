@@ -7,6 +7,8 @@ const path = require('path')
 const mongoose = require('mongoose')
 const session = require('express-session')
 const flash = require('connect-flash')
+require("./models/Posts")
+const Post = mongoose.model("posts")
 //configs
 //Session
 app.use(session({
@@ -44,9 +46,35 @@ mongoose.connect('mongodb://localhost/blogapp', { useNewUrlParser: true, useUnif
 app.use(express.static(path.join(__dirname, 'public')))
 
 //rotas
+app.get('/',(req,res)=>{
+    Post.find().populate("categories").sort({date: "desc"}).then((posts)=>{
+        res.render("index", {posts: posts})
+    }).catch((err)=>{
+        req.flash("error_msg","Erro interno")
+        res.redirect("/404")
+    })
+})
+
+app.get('/posts/slug',(req,res)=>{
+    Post.findOne({slug: res.params.slug}).then((post)=>{
+        if(post){
+            res.render('post/index',{post: post})
+        }else{
+            req.flash("error_msg","Esta postagem não existe")
+            res.redirect("/")
+        }
+    }).catch((err)=>{
+        req.flash("error_msg","Erro interno")
+        res.redirect('/')
+    })
+})
+
+app.get("/404", (req,res)=>{
+    res.send('Erro 404!')
+})
 app.use('/admin', admin)
 //outros
-const PORT = 8089
+const PORT = 8081
 app.listen(PORT, () => {
     console.log('Server on')
 })
