@@ -1,8 +1,8 @@
 <div class="container">
-    <h1 class="display-4">Bem-vindo ao blog do rafu</h1>
+    <h1 class="display-4">Bem-vindo ao blog do Rafu</h1>
     <p class="lead">Isto é apenas uma demonstração</p>
-    <hr class="my-4">
-    <p>Isto utiliza as seguintes tecnologias: express, handlebars, mongodb e node.js</p>
+    <hr class="mt-4">
+    <p>Este é um BLOG simples que utiliza as seguintes tecnologias: Express, Handlebars, MongoDB e Node.JS</p>
     <p class="lead">
         <a class="btn btn-primary btn-lg" href="#" role="button">Crie uma conta</a>
     </p>
@@ -10,11 +10,11 @@
 <h2>Postagens recentes</h2>
 
 {{#each posts}}
-<div class="card">
+<div class="card mt-4">
     <div class="card-body">
         <h3>{{title}}</h3>
         <p>{{description}}</p>
-        <a href="/posts/{{slug}}"><button class="btn btn-success">Leia mais</button></a>
+        <a href="/post/{{slug}}"><button class="btn btn-success">Leia mais</button></a>
         <hr>
         <small>Data de publicação: {{date}}</small>
     </div>

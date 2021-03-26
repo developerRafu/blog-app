@@ -9,6 +9,12 @@ const session = require('express-session')
 const flash = require('connect-flash')
 require("./models/Posts")
 const Post = mongoose.model("posts")
+require('./models/Category')
+const Category = mongoose.model('categories')
+const users = require('./routes/user')
+const passport = require('passport')
+require("./config/auth")(passport)
+
 //configs
 //Session
 app.use(session({
@@ -16,6 +22,10 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }))
+
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use(flash())
 //Middleware
 app.use((req, res, next) => {
@@ -55,10 +65,10 @@ app.get('/',(req,res)=>{
     })
 })
 
-app.get('/posts/slug',(req,res)=>{
-    Post.findOne({slug: res.params.slug}).then((post)=>{
+app.get('/post/:slug',(req,res)=>{
+    Post.findOne({slug: req.params.slug}).then((post)=>{
         if(post){
-            res.render('post/index',{post: post})
+            res.render("post/index",{post: post})
         }else{
             req.flash("error_msg","Esta postagem não existe")
             res.redirect("/")
@@ -69,10 +79,39 @@ app.get('/posts/slug',(req,res)=>{
     })
 })
 
+app.get("/categories", (req, res)=>{
+    Category.find().then((categories)=>{
+        res.render('categories/index',{categories: categories})
+    }).catch((err)=>{
+        req.flash("error_msg","Erro interno, tente novamente")
+        res.redirect('/')
+    })
+})
+
+app.get('/categories/:slug',(req,res)=>{
+    Category.findOne({slug: req.params.slug}).then((category)=>{
+        if(category){
+            Post.find({category: category._id}).then((posts)=>{
+                res.render('categories/posts', {posts: posts, category: category})
+            }).catch((err)=>{
+                req.flash("error_msg","Erro ao listar postagens")
+                res.redirect('/')
+            })
+        }else{
+            req.flash("error_msg","Esta categoria não existe")
+            res.redirect("/")
+        }
+    }).catch((err)=>{
+        req.flash("error_msg","Erro interno, tente novamente")
+        res.redirect('/')
+    })
+})
+
 app.get("/404", (req,res)=>{
     res.send('Erro 404!')
 })
 app.use('/admin', admin)
+app.use('/users', users)
 //outros
 const PORT = 8081
 app.listen(PORT, () => {
