@@ -49,11 +49,12 @@ app.set('view engine', 'handlebars')
 //mongoose
 
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb+srv://rafuhenrique:14@Rafael@cluster0.h1opt.mongodb.net/blogapp?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+mongoose.connect('mongodb://localhost/blogapp', { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
     console.log('mongo on')
 }).catch((err) => {
     console.log('error:', err)
 })
+
 //Public
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -110,7 +111,7 @@ app.get('/categories/:slug', (req, res) => {
 })
 
 app.get("/404", (req, res) => {
-    res.send('<h1>Erro 404!<\h1>')
+    res.send('Erro 404!')
 })
 app.use('/admin', admin)
 app.use('/users', users)
