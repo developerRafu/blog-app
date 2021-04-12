@@ -78,4 +78,9 @@ passport.authenticate("local", {
 })(req,res,next)
 })
 
+router.get('/logout', (req,res,next)=>{
+    req.logout()
+    req.flash("success_msg", "Saiu")
+    res.redirect('/')
+})
 module.exports = router

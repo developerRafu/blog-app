@@ -14,7 +14,6 @@ const Category = mongoose.model('categories')
 const users = require('./routes/user')
 const passport = require('passport')
 require("./config/auth")(passport)
-
 //configs
 //Session
 app.use(session({
@@ -31,6 +30,8 @@ app.use(flash())
 app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success_msg')
     res.locals.error_msg = req.flash("error_msg")
+    res.locals.error =  req.flash('error')
+    res.locals.user = req.user || null;
     next()
 })
 //Body parser
@@ -46,12 +47,23 @@ app.engine('handlebars', handlebars({
 }))
 app.set('view engine', 'handlebars')
 //mongoose
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/blogapp', { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
-    console.log('mongo on')
-}).catch((err) => {
-    console.log('error:', err)
-})
+if (process.env.NODE_ENV == "production") {
+    const MongoClient = require('mongodb').MongoClient;
+    const uri = "mongodb+srv://rafuhenrique:14@Rafael@cluster0.h1opt.mongodb.net/blogapp?retryWrites=true&w=majority";
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    client.connect(err => {
+        const collection = client.db("test").collection("devices");
+        // perform actions on the collection object
+        client.close();
+    });
+} else {
+    mongoose.Promise = global.Promise;
+    mongoose.connect('mongodb://localhost/blogapp', { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+        console.log('mongo on')
+    }).catch((err) => {
+        console.log('error:', err)
+    })
+}
 //Public
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -113,7 +125,7 @@ app.get("/404", (req,res)=>{
 app.use('/admin', admin)
 app.use('/users', users)
 //outros
-const PORT = 8081
+const PORT = process.env.PORT || 8082
 app.listen(PORT, () => {
     console.log('Server on')
 })

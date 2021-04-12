@@ -12,12 +12,18 @@
         <li class="nav-item">
           <a class="nav-link" href="/categories">Categorias</a>
         </li>
+        {{#if user}}
         <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Login</a>
+          <a class="nav-link" href="/users/logout" tabindex="-1">Sair</a>
+        </li>
+        {{else}}
+        <li class="nav-item">
+          <a class="nav-link" href="/users/login" tabindex="-1">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Registro</a>
+          <a class="nav-link" href="/users/register" tabindex="-1">Registro</a>
         </li>
+        {{/if}}
       </ul>
     </div>
   </div>

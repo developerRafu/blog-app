@@ -5,12 +5,9 @@ require("../models/Category")
 const Category = mongoose.model('categories')
 require("../models/Posts")
 const Posts = mongoose.model('posts')
-//const Posts =
-//router.get('/', (req, res) => {
-//    res.render('admin/index')
-//})
+const {isAdmin} = require('../helpers/isAdmin')
 
-router.get('/categories', (req, res) => {
+router.get('/categories', isAdmin, (req, res) => {
     Category.find().sort({ date: "desc" }).then((categories) => {
         res.render('admin/categories', { categories: categories })
     }).catch((err) => {
@@ -18,10 +15,10 @@ router.get('/categories', (req, res) => {
         res.redirect("/admin")
     })
 })
-router.get('/categories/add', (req, res) => {
+router.get('/categories/add', isAdmin, (req, res) => {
     res.render('admin/addcategory')
 })
-router.post('/categories/new', async (req, res) => {
+router.post('/categories/new', isAdmin, async (req, res) => {
 
     var erros = []
 
@@ -52,7 +49,7 @@ router.post('/categories/new', async (req, res) => {
     }
 })
 
-router.get('/categories/edit/:id', (req, res) => {
+router.get('/categories/edit/:id', isAdmin, (req, res) => {
     Category.findOne({ _id: req.params.id }).then((category) => {
         res.render('admin/editCategories', { category: category })
     }).catch((err) => {
@@ -60,7 +57,7 @@ router.get('/categories/edit/:id', (req, res) => {
         res.redirect('admin/categories')
     })
 })
-router.post('/categories/edit', (req, res) => {
+router.post('/categories/edit', isAdmin, (req, res) => {
     Category.findOne({ _id: req.body.id }).then((category) => {
         category.nome = req.body.nome
         category.slug = req.body.slug
@@ -77,7 +74,7 @@ router.post('/categories/edit', (req, res) => {
     })
 })
 
-router.post("/categories/deletar", (req, res) => {
+router.post("/categories/deletar", isAdmin, (req, res) => {
     Category.deleteOne({ _id: req.body.id }).then(() => {
         req.flash("success_msg", "Deletado com sucesso")
         res.redirect('/admin/categories')
@@ -86,7 +83,7 @@ router.post("/categories/deletar", (req, res) => {
         res.redirect('/admin/categories')
     })
 })
-router.get('/posts', async (req, res) => {
+router.get('/posts', isAdmin, async (req, res) => {
     await Posts.find().populate("category").sort({ date: 'desc' }).then((posts) => {
         res.render('admin/posts', { postagens: posts })
     }).catch((err) => {
@@ -94,7 +91,7 @@ router.get('/posts', async (req, res) => {
         res.redirect('/admin')
     })
 })
-router.get('/posts/add', (req, res) => {
+router.get('/posts/add', isAdmin, (req, res) => {
     Category.find().then((categories) => {
         res.render('admin/addPosts', { categories })
     }).catch((err) => {
@@ -102,7 +99,7 @@ router.get('/posts/add', (req, res) => {
         res.redirect('/admin')
     })
 })
-router.post('/posts/new', (req, res) => {
+router.post('/posts/new', isAdmin, (req, res) => {
     var erros = [];
     if (req.body.category == "0") {
         erros.push({ texto: "Categoria inválida, registre uma categoria" })
@@ -127,7 +124,7 @@ router.post('/posts/new', (req, res) => {
     }
 })
 
-router.get('/posts/edit/:id', (req, res) => {
+router.get('/posts/edit/:id', isAdmin, (req, res) => {
     Posts.findOne({ _id: req.params.id }).then((post) => {
         Category.find().then((categories) => {
             res.render('admin/editPosts', { categories, post })
@@ -142,7 +139,7 @@ router.get('/posts/edit/:id', (req, res) => {
     })
 })
 
-router.post("/posts/edit",(req,res)=>{
+router.post("/posts/edit", isAdmin, (req,res)=>{
     Posts.findOne({_id: req.body.id}).then((post)=>{
         post.title = req.body.titulo,
         post.slug = req.body.slug,
@@ -163,7 +160,7 @@ router.post("/posts/edit",(req,res)=>{
     })
 })
 
-router.post("/posts/deletar",(req,res)=>{
+router.post("/posts/deletar", isAdmin, (req,res)=>{
     Posts.deleteOne({_id: req.body.id}).then(()=>{
         req.flash("success_msg", "Deletado com sucesso")
         res.redirect("/admin/posts")
