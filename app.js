@@ -110,7 +110,7 @@ app.get('/categories/:slug', (req, res) => {
 })
 
 app.get("/404", (req, res) => {
-    res.send('Erro 404!')
+    res.send('<h1>Erro 404!<\h1>')
 })
 app.use('/admin', admin)
 app.use('/users', users)
