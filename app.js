@@ -30,7 +30,7 @@ app.use(flash())
 app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success_msg')
     res.locals.error_msg = req.flash("error_msg")
-    res.locals.error =  req.flash('error')
+    res.locals.error = req.flash('error')
     res.locals.user = req.user || null;
     next()
 })
@@ -47,79 +47,69 @@ app.engine('handlebars', handlebars({
 }))
 app.set('view engine', 'handlebars')
 //mongoose
-if (process.env.NODE_ENV == "production") {
-    const MongoClient = require('mongodb').MongoClient;
-    const uri = "mongodb+srv://rafuhenrique:14@Rafael@cluster0.h1opt.mongodb.net/blogapp?retryWrites=true&w=majority";
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    client.connect(err => {
-        const collection = client.db("test").collection("devices");
-        // perform actions on the collection object
-        client.close();
-    });
-} else {
-    mongoose.Promise = global.Promise;
-    mongoose.connect('mongodb://localhost/blogapp', { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
-        console.log('mongo on')
-    }).catch((err) => {
-        console.log('error:', err)
-    })
-}
+
+mongoose.Promise = global.Promise;
+mongoose.connect("mongodb+srv://rafuhenrique:14@Rafael@cluster0.h1opt.mongodb.net/blogapp?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+    console.log('mongo on')
+}).catch((err) => {
+    console.log('error:', err)
+})
 //Public
 app.use(express.static(path.join(__dirname, 'public')))
 
 //rotas
-app.get('/',(req,res)=>{
-    Post.find().populate("categories").sort({date: "desc"}).then((posts)=>{
-        res.render("index", {posts: posts})
-    }).catch((err)=>{
-        req.flash("error_msg","Erro interno")
+app.get('/', (req, res) => {
+    Post.find().populate("categories").sort({ date: "desc" }).then((posts) => {
+        res.render("index", { posts: posts })
+    }).catch((err) => {
+        req.flash("error_msg", "Erro interno")
         res.redirect("/404")
     })
 })
 
-app.get('/post/:slug',(req,res)=>{
-    Post.findOne({slug: req.params.slug}).then((post)=>{
-        if(post){
-            res.render("post/index",{post: post})
-        }else{
-            req.flash("error_msg","Esta postagem não existe")
+app.get('/post/:slug', (req, res) => {
+    Post.findOne({ slug: req.params.slug }).then((post) => {
+        if (post) {
+            res.render("post/index", { post: post })
+        } else {
+            req.flash("error_msg", "Esta postagem não existe")
             res.redirect("/")
         }
-    }).catch((err)=>{
-        req.flash("error_msg","Erro interno")
+    }).catch((err) => {
+        req.flash("error_msg", "Erro interno")
         res.redirect('/')
     })
 })
 
-app.get("/categories", (req, res)=>{
-    Category.find().then((categories)=>{
-        res.render('categories/index',{categories: categories})
-    }).catch((err)=>{
-        req.flash("error_msg","Erro interno, tente novamente")
+app.get("/categories", (req, res) => {
+    Category.find().then((categories) => {
+        res.render('categories/index', { categories: categories })
+    }).catch((err) => {
+        req.flash("error_msg", "Erro interno, tente novamente")
         res.redirect('/')
     })
 })
 
-app.get('/categories/:slug',(req,res)=>{
-    Category.findOne({slug: req.params.slug}).then((category)=>{
-        if(category){
-            Post.find({category: category._id}).then((posts)=>{
-                res.render('categories/posts', {posts: posts, category: category})
-            }).catch((err)=>{
-                req.flash("error_msg","Erro ao listar postagens")
+app.get('/categories/:slug', (req, res) => {
+    Category.findOne({ slug: req.params.slug }).then((category) => {
+        if (category) {
+            Post.find({ category: category._id }).then((posts) => {
+                res.render('categories/posts', { posts: posts, category: category })
+            }).catch((err) => {
+                req.flash("error_msg", "Erro ao listar postagens")
                 res.redirect('/')
             })
-        }else{
-            req.flash("error_msg","Esta categoria não existe")
+        } else {
+            req.flash("error_msg", "Esta categoria não existe")
             res.redirect("/")
         }
-    }).catch((err)=>{
-        req.flash("error_msg","Erro interno, tente novamente")
+    }).catch((err) => {
+        req.flash("error_msg", "Erro interno, tente novamente")
         res.redirect('/')
     })
 })
 
-app.get("/404", (req,res)=>{
+app.get("/404", (req, res) => {
     res.send('Erro 404!')
 })
 app.use('/admin', admin)
